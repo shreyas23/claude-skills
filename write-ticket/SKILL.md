@@ -11,7 +11,8 @@ you a question.
 
 Output structure, in this order:
 
-**Problem → Desired outcome → Context → Out of scope → Acceptance criteria**
+**Problem → Desired outcome → Context (only if the user supplies it) → Out of scope →
+Acceptance criteria**
 
 Two failure modes dominate, and both produce a ticket that reads well and is worthless.
 Everything below exists to kill them.
@@ -47,6 +48,12 @@ confirm it. Do not launder an assumption into prose.
 - **Specification uncertainty** (which behavior does the user want?) → ask, but only when
   the answer changes an acceptance criterion. Everything else gets an `[ASSUMPTION]`
   marker and moves on. Over-asking is a failure mode, not diligence.
+- **Undecidable from the repo** (why does this matter now? what does the field crew hit?
+  what was already tried?) → **ask once, before drafting.** Product and workflow knowledge
+  is the only thing the Context section may contain, and no amount of code reading
+  produces it. What the user already said in this conversation counts as their input; use
+  it, and never attribute to them anything they did not say. If the answer is "nothing
+  beyond the code", the ticket ships without a Context section.
 
 ## 2. The five sections
 
@@ -66,11 +73,23 @@ when it names the thing to be built, it is a solution in disguise. Rewrite from 
 **Desired outcome** — the end state in one to three sentences, observable from outside,
 implementation-free. Not a restatement of the acceptance criteria, and not a task list.
 
-**Context** — what the implementer needs that they would not get from reading the obvious
-file. Anchors, data formats, the gotcha that will silently produce wrong output, prior
-decisions and why the obvious alternative was rejected, hard constraints. This is the
-section that earns the ticket its keep. If a subtlety can produce a plausible-looking
-wrong result, give it its own bolded line (see `references/worked-example.md`).
+**Context** — the user's own knowledge of the product or the workflow, and nothing else.
+Why this matters now, what the customer or the field crew actually hits, what was already
+tried and abandoned, what the operator does with the output downstream, a decision already
+made and its reason. This is the one section you cannot derive from the repo, so **ask for
+it** (§1). If the user has nothing to add beyond what the code already shows, **delete the
+section.** A padded Context is worse than no Context.
+
+Two things that look like context and are not:
+
+- **Ticket cross-references.** "WEB-1320 lands first", "WEB-1323 is canceled", "WEB-1273
+  owns that surface" restate what Linear already models, in prose that goes stale the
+  moment the other ticket moves. Use `blockedBy`, `relatedTo`, and `parentId` instead. The
+  relation stays correct; the sentence does not.
+- **Code archaeology.** A fact you established by reading code is evidence, not context. It
+  belongs where it does work: in **Problem** when it establishes the defect, next to the
+  **acceptance criterion** it justifies otherwise. Moving it to a Context section only
+  distances it from the claim it supports.
 
 **Out of scope** — explicit non-goals: adjacent work that will get swept in otherwise,
 defenses another layer already provides, the follow-up this deliberately defers (link its
@@ -90,10 +109,11 @@ than they would have found, or gets ignored along with everything around it.
 The line is *facts versus directives*, not *detail versus brevity*. A ticket can be dense
 with specifics and still prescribe nothing:
 
-- **Context** — how the existing code and data actually behave, verified. "The producer
+- **Evidence** — how the existing code and data actually behave, verified. "The producer
   serializes an empty trajectory as a zeroed bbox, so absence is not distinguishable by
   inspecting the bbox." That is a property of the world; the assignee needs it and it
-  constrains them without instructing them.
+  constrains them without instructing them. It sits in Problem or beside the criterion it
+  serves, never in Context (§2).
 - **Constraint** — something externally fixed that the solution must satisfy: a wire
   format, an API contract another service already calls, a schema that cannot change, a
   budget. State the constraint and its source. Do not state the code that satisfies it.
@@ -104,7 +124,7 @@ When you catch yourself writing an instruction, convert it:
 
 | Instruction | Becomes |
 |---|---|
-| "Decode count, then bbox, then points from the header slice" | Context: the field layout and where it is defined. |
+| "Decode count, then bbox, then points from the header slice" | Evidence, beside the criterion it serves: the field layout and where it is defined. |
 | "Add a post-decode range guard for lat/lon" | Criterion: decoded values outside the valid range are rejected. |
 | "Expose `FW_VERSION` alongside the trajectory" | Criterion: `FW_VERSION` is available in the output. |
 | "Do not rebuild the producer's quality gating" | Out of scope, with the list of defenses the producer already applies. |
@@ -113,8 +133,8 @@ When you catch yourself writing an instruction, convert it:
 The last row is the common case. Most implementation text in a draft ticket carries no
 requirement at all — it is the writer thinking out loud. It goes.
 
-If a specific approach is genuinely mandatory, that is a constraint with a reason. Write
-the reason, in Context, with its anchor. "Must reuse the existing header read at
+If a specific approach is genuinely mandatory, that is a constraint with a reason. State
+it where it binds, with its anchor. "Must reuse the existing header read at
 `gnssFileParsing.ts:50-54`, because a second fetch doubles upload-path S3 calls" is a
 constraint. "Reuse the header read" alone is a directive.
 

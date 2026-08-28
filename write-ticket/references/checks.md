@@ -68,7 +68,10 @@ Run before showing any draft. All six must pass.
    names its verification. At least one covers a negative or boundary case. The set passes
    the meaningful / reasonable / necessary audit above.
 4. **Weak-word scan clean**, compound scan clean, no placeholders.
-5. **Out of scope names a real exclusion.** Not "future work in general".
+5. **Out of scope names a real exclusion**, not "future work in general". **Context is the
+   user's own product or workflow knowledge, or the section is absent** — no ticket
+   cross-references (Linear relations carry those), no code archaeology (that is evidence,
+   and belongs in Problem or beside its criterion).
 6. **Cold reader has zero blocking questions.** Every referent resolves. No session
    artifacts ("the file I just wrote", "as we discussed").
 

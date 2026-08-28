@@ -9,12 +9,19 @@ Its headings predate this skill's structure. The mapping:
 | WEB-1330 heading | Section |
 |---|---|
 | Purpose (¶1) | Problem |
-| Purpose (¶2) | Context — why this approach, and what it costs to not take it |
-| Format, Critical | Context |
+| Purpose (¶2) | Problem — the evidence that the alternative is off the table |
+| Format, Critical | Evidence, beside the criteria they justify |
 | Required implementation | **Does not map.** See "What not to copy" below. |
 | Acceptance criteria | Acceptance criteria |
 | Notes (¶1) | Out of scope |
-| Notes (¶2-3) | Context |
+| Notes (¶2-3) | Dropped. Cross-ticket prose belongs in Linear relations. |
+
+**WEB-1330 has no Context section under the current rule, and should not.** Everything in
+it was derived from the repo, which makes it evidence rather than context. Context holds
+only what the author knows about the product or the workflow and the code cannot tell you —
+here, that might have been why capture position is needed at upload time at all, or what
+support does today when a scan arrives with no usable GPS track. Absent that, the section
+is correctly omitted.
 
 It carries no explicit **Desired outcome**. That is the one thing the structure adds:
 the reader has to assemble the end state from the implementation list. One sentence
@@ -81,7 +88,8 @@ table, so nobody re-litigates SBF decryption in review.
 
 **Six anchors, all specific.** Two file:line spans, a schema file, a byte range, a symbol
 name, a code excerpt of the producer. The assignee opens the ticket and starts reading
-code, not asking questions.
+code, not asking questions. Each sits next to the claim it supports rather than pooled in
+a context dump.
 
 **The gotcha has its own heading.** An empty trajectory serializing as `(0,0,0,0)` is the
 one thing that silently produces a plausible wrong answer. It is bolded, explained, shown
@@ -89,8 +97,9 @@ in producer source, and given the exact correct test (`count == 0`). This is the
 highest-value paragraph in the ticket.
 
 **Scope is fenced from both sides.** Notes says what this ticket does *not* do (comparison
-logic) and Context says what *not* to rebuild (producer-side quality gating, listed
-defense by defense). Both prevent real, likely scope drift.
+logic) and the hardening paragraph says what *not* to rebuild (producer-side quality
+gating, listed defense by defense). Both are Out of scope, and both prevent real, likely
+scope drift.
 
 **Four of six criteria are negative cases.** Empty, pre-v31, out-of-range, below-minimum.
 Each is falsifiable and each names its check. Compare against what a happy-path-only
@@ -103,8 +112,8 @@ on why it is separate.
 
 WEB-1330 has a **Required implementation** section. Do not reproduce it. It is the one part
 of an otherwise exemplary ticket that takes work away from the assignee, and every bullet
-in it is either a requirement wearing an instruction's clothes or a fact that belongs in
-Context.
+in it is either a requirement wearing an instruction's clothes or evidence that belongs
+beside the criterion it justifies.
 
 > ## Required implementation
 >
@@ -126,11 +135,11 @@ Redistributed:
 
 | Bullet | Where it goes |
 |---|---|
-| Decode count, bbox, points from the header slice already being read | Context, restated as a constraint with its reason: the field is inside the 8192-byte header slice `gnssFileParsing.ts:50-54` already fetches, so no additional read is required. |
-| `count == 0` → absent | Context. It is a fact about the producer's serialization, already established under **Critical**. The requirement it implies is criterion 2. |
+| Decode count, bbox, points from the header slice already being read | Problem, restated as a constraint with its reason: the field is inside the 8192-byte header slice `gnssFileParsing.ts:50-54` already fetches, so no additional read is required. |
+| `count == 0` → absent | Evidence. It is a fact about the producer's serialization, already established under **Critical**. The requirement it implies is criterion 2. |
 | Post-decode range guard | Criterion: decoded values outside `\|lat\| ≤ 90` / `\|lon\| ≤ 180` are rejected. Already present as criterion 4. |
 | Below ~10 points, report present-but-insufficient | Criterion 5, once the threshold is fixed at 10 rather than "~10". |
-| Expose `FW_VERSION` | Criterion 6. The byte range and the retroactive-quarantine rationale go to Context. |
+| Expose `FW_VERSION` | Criterion 6, with the byte range and the retroactive-quarantine rationale stated alongside it. |
 | Keep consumer-side hardening narrow | Out of scope, with the producer's defense list verbatim. |
 
 Nothing is lost in the move. The section was carrying six things, four of which the
