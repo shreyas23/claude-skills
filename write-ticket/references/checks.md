@@ -32,6 +32,28 @@ The exception is a mandatory constraint stated *with its reason and anchor* ("mu
 the header read at `gnssFileParsing.ts:50-54`, because a second fetch doubles upload-path
 S3 calls"). A bare directive with no reason is never the exception.
 
+## Acceptance-criteria audit
+
+Run over the whole set, not one criterion at a time. Details and rationale in `SKILL.md` §4.
+
+| Question | Fails when | Fix |
+|---|---|---|
+| **Meaningful** — can it fail? | An either/or that covers itself ("closed, or documented as knowingly unchecked"). | Make the decision, or move it to its own ticket. |
+| | A count or list asserted but never checked against the code ("each of the five entry points"). | Verify the enumeration like any other anchor. |
+| | An unfalsifiable adjective ("an actionable message", "tests extend these files"). | State the observable, or delete. |
+| **Reasonable** — proportionate to the structure? | Per-surface enumeration where the code has one funnel. | Enumerate call sites or branches instead. |
+| | A criterion whose verification costs more than the defect it guards. | Fold into an existing fixture set. |
+| **Necessary** — does deleting it lose coverage? | Another criterion's fixtures already fail whenever this one would. | Delete. |
+| | A regression floor ("a valid input still succeeds"). | Delete; the rest of the set implies it. |
+| | Depends on none of the ticket's blockers. | Not redundant, misplaced. Move to the split-out ticket. |
+
+**Every count, list, and "all N surfaces" inside a criterion is an anchor.** Verify it
+against the code before filing, exactly as you would a Context claim. A criterion built on
+an unverified enumeration can demand a check that cannot exist.
+
+**A stated exception beats a mechanical split.** Two clauses may share a criterion when
+they are not separately shippable. Say why, once.
+
 ## Self-check card
 
 Run before showing any draft. All six must pass.
@@ -43,7 +65,8 @@ Run before showing any draft. All six must pass.
    output — or an explicit `[ASSUMPTION]` marker with what would confirm it. Paths verified
    to resolve.
 3. **Criteria hold up.** Each is singular, falsifiable by a reviewer without judgment, and
-   names its verification. At least one covers a negative or boundary case.
+   names its verification. At least one covers a negative or boundary case. The set passes
+   the meaningful / reasonable / necessary audit above.
 4. **Weak-word scan clean**, compound scan clean, no placeholders.
 5. **Out of scope names a real exclusion.** Not "future work in general".
 6. **Cold reader has zero blocking questions.** Every referent resolves. No session

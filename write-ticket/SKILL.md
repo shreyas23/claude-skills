@@ -137,6 +137,39 @@ Each criterion is **one assertion**, **falsifiable**, and **names how it is chec
 Given/When/Then when the behavior is interaction-shaped; a plain assertion when it is
 state-shaped. Do not force the form.
 
+### Audit the set before emitting
+
+Per-criterion checks pass a set that is still wrong as a whole. Run three questions over
+every criterion, and delete or fix on any failure.
+
+**Meaningful — can it fail?** A criterion that cannot fail is decoration. Two forms recur:
+
+- *An either/or that covers itself.* "Closed with hash-to-row resolution, **or** documented
+  in code as knowingly unchecked" passes by writing a comment. If a decision is unmade,
+  make it, or move it to its own ticket. Never hide it in a disjunction.
+- *An unverified enumeration.* "Each of the five upload entry points rejects it" is a
+  factual claim about the code, and it gets verified exactly like a Context claim. Two of
+  those five turned out to be site-scoped with no capture to compare against, so the
+  criterion demanded a check that cannot exist. **Every count, list, and "all N surfaces"
+  inside a criterion is an anchor and gets checked before filing.**
+
+**Reasonable — is the cost proportionate to the structure?** Match the enumeration to what
+the code actually is. When every start path funnels through one function with two call
+sites, seven per-surface tests re-test one path six extra times; the real requirement is
+that both branches evaluate and nothing bypasses the funnel. Enumerate surfaces where the
+surfaces genuinely differ, and enumerate call sites where they do not.
+
+**Necessary — does removing it lose coverage?** Delete the criterion and ask what becomes
+unverifiable. If another criterion's fixtures already fail whenever this one would, it is
+redundant. Regression floors ("a valid input still succeeds") are almost always implied by
+the rest of the set. A criterion that depends on none of the ticket's blockers is not
+redundant but is misplaced: it belongs in the split-out ticket (§5).
+
+State an intentional exception rather than splitting mechanically. Two clauses may stay in
+one criterion when they are not separately shippable — "does not block **and** emits the
+error log" is one requirement, because a silent fail-open is the defect the ticket exists
+to prevent. Say why in the ticket, once.
+
 ## 5. Split rule
 
 Propose multiple tickets under a parent when any of these hold:
@@ -168,7 +201,8 @@ Run all six. Report the result. Do not show the draft until every one passes.
 
 1. Problem states a problem, not a solution, and no section prescribes an implementation.
 2. Every factual claim carries an anchor or an explicit `[ASSUMPTION]` marker.
-3. Every acceptance criterion is singular, falsifiable, and names its verification.
+3. Every acceptance criterion is singular, falsifiable, and names its verification, and
+   the set survives the meaningful / reasonable / necessary audit (§4).
 4. Weak-word scan is clean (`references/checks.md`).
 5. Out of scope names at least one real exclusion.
 6. Cold-reader gate passes with zero blocking questions.
